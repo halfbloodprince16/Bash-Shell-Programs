@@ -2,33 +2,46 @@
 #include"stdlib.h"
 #include"sys/types.h"
 #include"unistd.h"
-
-void sortt(int x[],int s,int e)
+void swap(int* a, int* b)
 {
-	int temp,i,j;
-	for(i=0;i<e-1;i++)
-	{
-		for(j=i+1;j<e;j++)
-		{
-			if(x[i] > x[j])
-			{
-				temp = x[i];
-				x[i] = x[j];
-				x[j] = temp;
-			}
-		}
-	}
-	for(i=0;i<e;i++)
-	{
-		printf("%d",x[i]);
-	}
-	return ;
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
+ 
+int partition (int arr[], int low, int high)
+{
+    int pivot = arr[high]; 
+    int i = (low - 1);  
+    for (int j = low; j <= high- 1; j++)
+    {
+        if (arr[j] <= pivot)
+        {
+            i++;    
+            swap(&arr[i], &arr[j]);
+        }
+    }
+    swap(&arr[i + 1], &arr[high]);
+    return (i + 1);
+}
+
+void quickSort(int arr[], int low, int high)
+{
+    if (low < high)
+    {
+    
+        int pi = partition(arr, low, high);
+ 
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
 }
 
 int main(int argc, char const *argv[])
 {
 	int i,j,pid,ppid,n;
-	int *ar,chd_id;;
+	int *ar;
+	
 	printf("Enter no. of elements");
 	scanf("%d",&n);
 	ar = (int *)malloc(n*sizeof(int));
@@ -38,24 +51,34 @@ int main(int argc, char const *argv[])
 	{
 		scanf("%d",&ar[i]);
 	}
-	chd_id = fork();
 	pid = wait(NULL);
-
-	if(chd_id == 0)
+	pid_t child_pid = fork();
+	if(child_pid > 0)
 	{
-		sleep(1);
-		printf("\nSelf Process id %d ans parent is is %d",getpid(),getppid());
-		printf("\nSorted array");
-		sortt(ar,ar,n);
-		
+		printf("\nParent Process pid%d\n",getpid());
+		sleep(3);//zombie
+		printf("%d Parent is terminated", getpid());
+		printf("\nSorted array is ");
+		quickSort(ar,0,n-1);
+		for (int i = 0; i < n; ++i)
+		{
+			printf("%d\t", ar[i]);
+		}
+		printf("\n");
 	}
 	else
 	{
-		sleep(1);
-		printf("\nSelf Process id %d ans parent is is %d",getpid(),getppid());
-		printf("\nSorted array is ");
-		sortt(ar,ar,n);
+		printf("\nChild Process id %d and parent id is %d\n",getpid(),getppid());
+		//sleep(3);//orphan
+		printf("\nSorted array");
+		quickSort(ar,0,n-1);
+		for (int i = 0; i < n; ++i)
+		{
+			printf("%d\t", ar[i]);
+		}
+		printf("\n");
 		
 	}
+	system("ps -l");
 	return 0;
 }
