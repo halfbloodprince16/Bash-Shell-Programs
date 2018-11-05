@@ -1,0 +1,7 @@
+Delimiter $$
+Drop Procedure if exits stucursor $$
+Create procedure studcursor()
+Begin
+Declare rno int;
+Declare flag int default 0;
+Declare c1 cursor for select rollno from student;
